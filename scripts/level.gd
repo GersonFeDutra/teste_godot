@@ -10,11 +10,11 @@ func _ready():
 	pass
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	pass
 
 
-func _on_coin_collect(node):
+func _on_coin_collect(_node):
 	coin_count += 1
 	coin_label.clear()
 	coin_label.add_text(" x " + str(coin_count))
