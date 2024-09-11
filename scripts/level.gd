@@ -3,6 +3,7 @@ extends Node2D
 @onready var coin_label = $Interface/CoinLabel
 @onready var coins = $Coins
 @onready var game_over_screen = $Interface/LevelCompleteScreen
+@export var next_level: PackedScene
 
 var coin_count = 0
 # Called when the node enters the scene tree for the first time.
@@ -14,11 +15,14 @@ func _process(_delta):
 	pass
 
 
-func _on_coin_collect(_node):
-	coin_count += 1
-	coin_label.clear()
-	coin_label.add_text(" x " + str(coin_count))
-	
+#region ops Não tinha visto esse código kkkkk
+# O importante é que tá resolvido
+#func _on_coin_collect(_node):
+	#coin_count += 1
+	#coin_label.clear()
+	#
+	#coin_label.add_text(" x " + str(coin_count))
+#endregion
 
 
 func _on_porta_game_complete():
@@ -27,4 +31,6 @@ func _on_porta_game_complete():
 
 
 func _on_button_pressed():
-	pass
+	if not next_level:
+		printerr("oops, a porta não vai pra lugar nenum!")
+	get_tree().change_scene_to_packed(next_level)

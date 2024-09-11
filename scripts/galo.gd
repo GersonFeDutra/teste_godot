@@ -76,5 +76,5 @@ func read_input():
 	move_and_slide()
 	
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	read_input()

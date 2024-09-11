@@ -11,5 +11,4 @@ func _ready():
 
 func _on_area_2d_area_entered(_area):
 	collect.emit(self)
-	print('é')
 	queue_free()
