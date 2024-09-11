@@ -172,8 +172,6 @@ limit_smoothed = true
 
 [node name="Galo" parent="." instance=ExtResource("7_wehmc")]
 position = Vector2(55, 567)
-deacceleration = 20.0
-max_speed = 250.0
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Galo"]
 remote_path = NodePath("../../Camera2D")

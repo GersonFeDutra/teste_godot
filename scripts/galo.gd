@@ -14,17 +14,21 @@ enum Movement{
 	IDLE
 }
 
-
-@export var jump_force: float = 20.
+@export var jump_force: float = .7
 
 var current_state = State.RIGHT
 var current_movement = Movement.IDLE
 var direction := Vector2.ZERO
+
+@export var coyote_jump: float = .3
 var coyote_jump_time: float
 
+@export var max_air_debuff: float = .4
+var air_debuff: float = 1.0
+
 @export_range(0.0, 99999.) var acceleration: float = 1.
-@export_range(0.0, 99999.) var deacceleration: float = 10.
-@export_range(0.0, 99999.) var max_speed: float = 20.
+@export_range(0.0, 99999.) var deacceleration: float = 20.
+@export_range(0.0, 99999.) var max_speed: float = 250.
 var target_speed: float = 0.0
 var current_speed: float
 var has_double_jumped: bool = false
@@ -48,15 +52,33 @@ func move(delta: float) -> void:
 		# Se estiver no ár, a gravidade só te faz acelerar.
 		# Espero que não tenha pulado de muito alto :V
 		gravity_force += gravity * delta
+	#endregion
+	
+	#region _jump()
+	if Input.is_action_just_pressed("jump"):
+		if (on_floor or coyote_jump_time > 0.0):
+			has_double_jumped = false
+			coyote_jump_time = -1.
+			gravity_force = Vector2.UP * jump_force
+		elif not has_double_jumped:
+			has_double_jumped = true
+			coyote_jump_time = -1.
+			gravity_force = Vector2.UP * jump_force
+	if was_on_floor:
+		coyote_jump_time = coyote_jump
+	else:
+		coyote_jump_time = maxf(-1., coyote_jump_time - delta)
+	#endregion
 	
 	# Eu poderia simplesmente aplicar direto na velocity
 	# mas eu gosto assim, fica mais legível
 	velocity = gravity_force
-	#endregion
+	
+	air_debuff = 1.0 if on_floor else max_air_debuff
 	
 	if Input.is_action_pressed("left"):
 		#region speed_up()
-		target_speed = -max_speed
+		target_speed = -max_speed * air_debuff
 		#direction = Vector2.LEFT # ARCAICO
 		#endregion
 		
@@ -64,7 +86,7 @@ func move(delta: float) -> void:
 		current_movement = Movement.WALKING
 	elif Input.is_action_pressed("right"):
 		#region speed_up() # ARCAICO
-		target_speed = max_speed
+		target_speed = max_speed * air_debuff
 		#direction = Vector2.RIGHT
 		#endregion
 		
@@ -76,22 +98,20 @@ func move(delta: float) -> void:
 		#endregion
 		current_movement = Movement.IDLE
 	
+	#region ARCAICO
+	#if coyote_jump_time <= 0:
+		#velocity.y += 1
+		#direction += Vector2.ZERO # ARCAICO
+	#else:
+		#velocity.y = -1
+		#coyote_jump_time -= 1 
+		#direction += Vector2.UP * jump_force # ARCAICO
+	#if Input.is_action_just_pressed("jump"):
+		#if coyote_jump_time == 0:
+			#coyote_jump_time = 20
+		#
+	#endregion
 	
-	if coyote_jump_time <= 0:
-		velocity.y += 1
-		direction += Vector2.ZERO
-	else:
-		velocity.y = -1
-		coyote_jump_time -= 1
-		direction += Vector2.UP * jump_force
-	
-	if on_floor or coyote_jump_time > 0.0 and Input.is_action_just_pressed("jump"):
-		pass # pausa pra salvar o progresso
-	
-	if Input.is_action_just_pressed("jump"):
-		
-		if coyote_jump_time == 0:
-			coyote_jump_time = 20
 	if current_movement == Movement.WALKING:
 		#region _head_over()
 		# Eu faria isso proceduralmente usando uma variável para controlar
@@ -124,6 +144,7 @@ func move(delta: float) -> void:
 	else:
 		current_speed = lerpf(current_speed, target_speed, deacceleration * delta)
 	
+	# TODO -> LERP gravity and jump
 	velocity.x = current_speed
 	move_and_slide()
 	was_on_floor = is_on_floor()
