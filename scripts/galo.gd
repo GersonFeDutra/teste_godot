@@ -55,9 +55,21 @@ func read_input():
 		if jump_time == 0:
 			jump_time = 20
 	if current_movement == Movement.WALKING:
+		#region _head_over()
+		# Eu faria isso proceduralmente usando uma variável para controlar
+		# o flip do sprite, para economizar no tamanho da textura (animações repetidas)
+		# E então se quisesse ter animações independentes usaria o nó AnimationPlayer para isso
+		# E potencialmente, se meu personagem tivesse muitas animações, usaria o AnimationTree
+		#var is_heading_left: bool
 		match(current_state):
 			State.RIGHT:
 				_animated_sprite.play("walk_right")
+				#is_heading_left = false
+			State.LEFT:
+				_animated_sprite.play("walk_left")
+				#is_heading_left = true
+		#_animated_sprite.flip_h = is_heading_left
+		#endregion
 	else:
 		# Se o jogador não está se movendo mostra sprite de parado na direção atual
 		match(current_state):
@@ -65,10 +77,6 @@ func read_input():
 				_animated_sprite.play("idle_right")
 			State.LEFT:
 				_animated_sprite.play("idle_left")
-					
-			
-				
-			
 	# Acelera o jogador, se ele segurar shift acelera mais
 	#velocity = velocity.normalized()
 	velocity = velocity * 230
